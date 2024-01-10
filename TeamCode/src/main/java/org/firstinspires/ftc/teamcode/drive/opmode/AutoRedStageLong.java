@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -60,11 +61,9 @@ public class AutoRedStageLong extends LinearOpMode {
     Vector2d detectPos = new Vector2d(12, 0);
 
     Vector2d dropPos = new Vector2d(25, 0);
-    Vector2d leftSpikeMark = new Vector2d(25, 0); // SET THIS CORRECTLY
-    Vector2d rightSpikeMark = new Vector2d(25, 0);
 
     @Override
-    public void runOpMode() throws InterruptedException{
+    public void runOpMode(){
         purplePixelDropper = hardwareMap.servo.get("purplePixel");
         DcMotor armMotor = hardwareMap.dcMotor.get("armer");
         DcMotor armMotor2 = hardwareMap.dcMotor.get("armer2");
@@ -90,9 +89,6 @@ public class AutoRedStageLong extends LinearOpMode {
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
 
         drive.setPoseEstimate(startPose);
-
-        waitForStart();
-        if(isStopRequested()) return;
 
         Trajectory centerDrop = drive.trajectoryBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), 0))
                 .strafeTo(dropPos)
@@ -126,21 +122,28 @@ public class AutoRedStageLong extends LinearOpMode {
                 })
                 .build();
 
+        waitForStart(); /*****  DON'T RUN ANY MOTOR MOVEMENT ABOVE THIS LINE!! You WILL get PENALTIES! And it's UNSAFE! *****/
+        if(isStopRequested()) return;
+
         drive.followTrajectorySequence(FunkyForward);
         switch (pos) {
             case CENTER:
+                telemetry.addData("going center: ", 1);
                 drive.followTrajectory(centerDrop);
                 break;
             case LEFT:
+                telemetry.addData("going left: ", 1);
                 drive.followTrajectorySequence(leftDrop);
                 break;
             case RIGHT:
+                telemetry.addData("going right: ", 1);
                 drive.followTrajectorySequence(rightDrop);
                 break;
             case UNK:
                 telemetry.addData("brok me", "");
                 break;
         }
+        purplePixelDropper.setPosition(purplePixelServoUp); // reset the position of the pixel dropper to up for hardware safety
 
 
     }
@@ -153,6 +156,7 @@ public class AutoRedStageLong extends LinearOpMode {
             telemetryTfod();
         }
         if (currentRecognitions != null && currentRecognitions.size()==1) { // detect center
+            telemetry.addData("Detected on center: ", 1);
             pos = SpikeDetectionPos.CENTER;
             return;
         }
@@ -161,10 +165,12 @@ public class AutoRedStageLong extends LinearOpMode {
             telemetryTfod();
         }
         if (currentRecognitions != null && currentRecognitions.size()==1) { // detect left
+            telemetry.addData("Detected on left: ", 1);
             pos = SpikeDetectionPos.LEFT;
             drive.turn(-35); // turn back to face straight
+            return;
         }
-        else {
+        if (true) { // this worked in the old code, maybe it'll work here too? // drop right if not on center or left
             drive.turn(-35); // turn back to face straight
             pos = SpikeDetectionPos.RIGHT;
         }
@@ -199,7 +205,7 @@ public class AutoRedStageLong extends LinearOpMode {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
 
-        // Choose a camera resolution. Not all cameras support all resolutions.
+        // Choose a camera resolution. Not all cameras support all resolutions. // should probably set this correctly
         //builder.setCameraResolution(new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
@@ -245,6 +251,8 @@ public class AutoRedStageLong extends LinearOpMode {
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            telemetry.addData(""," ");
+            telemetry.addData("Detected pos: ",pos); // this should allow us to see where the robot thinks the prop is
         }   // end for() loop
 
     }   // end method telemetryTfod()
