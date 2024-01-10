@@ -107,7 +107,7 @@ public class AutoRedStageLong extends LinearOpMode {
 
         TrajectorySequence rightDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), 0))
                 .strafeTo(dropPos)
-                .turn(Math.toRadians(-90)) // 90 deg left
+                .turn(Math.toRadians(-90)) // 90 deg right
                 .addDisplacementMarker(() -> {
                     purplePixelDropper.setPosition(purplePixelServoDown);
                 })
