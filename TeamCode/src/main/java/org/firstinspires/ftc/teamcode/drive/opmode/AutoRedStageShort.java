@@ -38,7 +38,8 @@ public class AutoRedStageShort extends LinearOpMode {
      */
     private VisionPortal visionPortal;
 
-    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
+        String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
+//    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
     private static final String[] LABELS = {
             "Viking"
     };
@@ -116,22 +117,16 @@ public class AutoRedStageShort extends LinearOpMode {
                 .forward(13)
                 .build();
 
-        leftDropOne = drive.trajectoryBuilder(firstTrajectory.end(), Math.toRadians(340))
-//                .back(8)
-                .strafeLeft(5) // get farther away from the trusses to avoid collision
-//                .splineTo(new Vector2d(7, -40), 0, SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-//                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL/2))
+        leftDropOne = drive.trajectoryBuilder(firstTrajectory.end(),true)
+                .back(3)
                 .build();
 
         leftDropTwo = drive.trajectoryBuilder(leftDropOne.end())
-                .strafeTo(new Vector2d(7, -40), SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL/5))
+                .strafeRight(6)
                 .build();
 
-        rightDropOne = drive.trajectoryBuilder(firstTrajectory.end(),Math.toRadians(45))
-//                .back(8)
-                .splineTo(new Vector2d(14, -40), 0, SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL/5))
+        rightDropOne = drive.trajectoryBuilder(firstTrajectory.end(),315)
+                .back(8)
                 .build();
 
 //        rightDropTwo = drive.trajectoryBuilder(rightDropOne.end(),true)
@@ -140,7 +135,7 @@ public class AutoRedStageShort extends LinearOpMode {
 
         Trajectory secondTrajectory = drive.trajectoryBuilder(firstTrajectory.end())
                 .splineTo(new Vector2d(46, 58), 0, SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)) // DONT RUN THIS UNTIL YOU RESET THE X AND Y
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         Trajectory thirdTrajectory = drive.trajectoryBuilder(secondTrajectory.end())
@@ -169,7 +164,6 @@ public class AutoRedStageShort extends LinearOpMode {
 //        drive.followTrajectory(thirdTrajectory);
 
         drive.followTrajectory(firstTrajectory);
-        drive.followTrajectorySequence(waitOneSec);
         spikeDetector();
         drive.followTrajectorySequence(waitOneSec);
         purplePixelDropper.setPosition(purplePixelServoUp);
@@ -182,10 +176,7 @@ public class AutoRedStageShort extends LinearOpMode {
     void spikeDetector() {
         //if there is one object detected before turning then the object is the center
         //yaaay works
-        for(int i = 0; i<10; i++)
-        {
-            telemetryTfod();
-        }
+        drive.followTrajectorySequence(waitOneSec);
         if (currentRecognitions != null && currentRecognitions.size()==1) {
             drive.followTrajectory(centerDropOne);
             drive.followTrajectory(centerDropTwo);
@@ -193,29 +184,31 @@ public class AutoRedStageShort extends LinearOpMode {
             pos = SpikeDetectionPos.CENTER;
             return;
         }
-        //turn 30 degrees right
-        drive.turn(Math.toRadians(-30));
+//        drive.followTrajectory(leftDetect);
+        //turn 45 degrees left
+        drive.turn(Math.toRadians(45));
         drive.followTrajectorySequence(waitOneSec);
-        for(int j = 0; j<10; j++)
-        {
-            telemetryTfod();
-        }
-        //if there is one object detected after turning 45 degrees right the object is on the right
+        //if there is one object detected after turning 45 degrees left the object is in the left
         //yaaay works
-        if(currentRecognitions != null && currentRecognitions.size()==1) {
-//            drive.followTrajectorySequence(waitOneSec);
-            drive.followTrajectory(rightDropOne);
+        if(currentRecognitions != null && currentRecognitions.size()==1){
+            drive.turn(Math.toRadians(-45));
+            drive.followTrajectory(leftDropOne);
+            drive.turn(Math.toRadians(90));
+            drive.followTrajectory(leftDropTwo);
             purplePixelDropper.setPosition(purplePixelServoDown);
-            pos = SpikeDetectionPos.RIGHT;
+            pos = SpikeDetectionPos.LEFT;
             return;
         }
-        //if its not center or right it is on left
-        drive.turn(Math.toRadians(90));
-        drive.followTrajectory(leftDropOne);
-        drive.followTrajectory(leftDropTwo);
-        drive.turn(Math.toRadians(50));
-        purplePixelDropper.setPosition(purplePixelServoDown);
-        pos = SpikeDetectionPos.LEFT;
+        //if its not center or left it is on right
+        //doesnt works:(
+        drive.turn(Math.toRadians(-90));
+        if (true) {
+            drive.followTrajectorySequence(waitOneSec);
+            drive.followTrajectory(rightDropOne); //broked
+//            drive.followTrajectory(rightDropTwo);
+            purplePixelDropper.setPosition(purplePixelServoDown);
+            pos = SpikeDetectionPos.RIGHT;
+        }
     }
 
     private void initTfod() {

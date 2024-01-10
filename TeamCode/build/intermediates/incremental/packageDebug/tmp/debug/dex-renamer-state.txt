@@ -1,17 +1,17 @@
-#Mon Jan 08 18:13:14 MST 2024
-base.0=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
-base.1=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\10\\classes.dex
-base.10=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
-base.11=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
-base.12=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes3.dex
-base.2=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\11\\classes.dex
-base.3=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\8\\classes.dex
-base.4=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
-base.5=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\10\\classes.dex
-base.6=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
-base.7=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\15\\classes.dex
-base.8=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
-base.9=C\:\\Users\\lilra\\Downloads\\FtcRobotControllerPlus-master\\FtcRobotControllerPlus-master\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\5\\classes.dex
+#Tue Jan 09 18:57:37 MST 2024
+base.0=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.1=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\10\\classes.dex
+base.10=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
+base.11=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
+base.12=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes3.dex
+base.2=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\11\\classes.dex
+base.3=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\8\\classes.dex
+base.4=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.5=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\10\\classes.dex
+base.6=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
+base.7=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\15\\classes.dex
+base.8=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
+base.9=C\:\\Users\\lilra\\Desktop\\FTC Project code\\FTC2023-24\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\5\\classes.dex
 path.0=classes.dex
 path.1=10/classes.dex
 path.10=9/classes.dex
