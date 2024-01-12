@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import android.util.Size;
+
 import com.acmerobotics.roadrunner.drive.Drive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.profile.VelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -42,7 +45,7 @@ public class AutoRedStageLong extends LinearOpMode {
      */
     private VisionPortal visionPortal;
 
-        String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
+    String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
 //    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
     private static final String[] LABELS = {
             "Viking"
@@ -58,21 +61,30 @@ public class AutoRedStageLong extends LinearOpMode {
     double purplePixelServoUp = 0.8;
     double purplePixelServoDown = 0;
 
-    Vector2d detectPos = new Vector2d(12, 0);
 
+    TrajectorySequence centerDrop;
+    TrajectorySequence centerDrop2;
+    TrajectorySequence leftDrop;
+    TrajectorySequence leftDrop2;
+    TrajectorySequence leftDrop3;
+
+    TrajectorySequence rightDrop;
+    TrajectorySequence rightDrop2;
+
+    TrajectorySequence rightDrop3;
+
+    TrajectorySequence waitSome;
+
+
+    Vector2d detectPos = new Vector2d(12, 0);
     Vector2d dropPos = new Vector2d(25, 0);
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() {
         purplePixelDropper = hardwareMap.servo.get("purplePixel");
-        DcMotor armMotor = hardwareMap.dcMotor.get("armer");
-        DcMotor armMotor2 = hardwareMap.dcMotor.get("armer2");
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // gotta restart the motor after stopping to zero the encoder
-        armMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double slowerVelocity = 25;
+        double slowerVelocity = 25; // 25 is half ish of the full speed
         TrajectoryVelocityConstraint velCons = SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryAccelerationConstraint accCons = SampleMecanumDrive.getAccelerationConstraint(slowerVelocity);
         initTfod();
 
         while (opModeIsActive()) {
@@ -85,119 +97,133 @@ public class AutoRedStageLong extends LinearOpMode {
         }
 
         drive = new SampleMecanumDrive(hardwareMap);
-
-        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
-
+        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180));
         drive.setPoseEstimate(startPose);
 
-        Trajectory centerDrop = drive.trajectoryBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), 0))
-                .strafeTo(dropPos)
-                .addDisplacementMarker(() -> {
-                    purplePixelDropper.setPosition(purplePixelServoDown);
-                })
+        Trajectory FunkyForward = drive.trajectoryBuilder(startPose)
+//                .setVelConstraint(velCons) // slow the trajectorySequence down
+//                .strafeTo(detectPos) // go in a straight line on the Vector2d
+                .lineTo(detectPos, velCons, accCons) // make it simple????? IDK anymore dude - "M" at 1/10/24 8:05PM
+                .build(); // build it
+
+        centerDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
+                .lineTo(new Vector2d(32, 0), velCons, accCons)
                 .build();
 
-        TrajectorySequence leftDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), 0))
-                .strafeTo(dropPos)
-                .turn(Math.toRadians(90)) // 90 deg left
-                .addDisplacementMarker(() -> {
-                    purplePixelDropper.setPosition(purplePixelServoDown);
-                })
+        centerDrop2 = drive.trajectorySequenceBuilder(centerDrop.end())
+                .lineTo(new Vector2d(25, 0), velCons, accCons)
                 .build();
 
-        TrajectorySequence rightDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), 0))
-                .strafeTo(dropPos)
-                .turn(Math.toRadians(-90)) // 90 deg left
-                .addDisplacementMarker(() -> {
-                    purplePixelDropper.setPosition(purplePixelServoDown);
-                })
+        leftDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
+                .lineTo(new Vector2d(dropPos.getX() + 3, dropPos.getY()), velCons, accCons)
+                .turn(Math.toRadians(90))
                 .build();
 
+        leftDrop2 = drive.trajectorySequenceBuilder(leftDrop.end())
+                .back(5)
+                .build();
 
-        TrajectorySequence FunkyForward = drive.trajectorySequenceBuilder(startPose)
-                .setVelConstraint(velCons)
-                .strafeTo(detectPos)
-                .addDisplacementMarker(() -> {
-                    SpikeDetect(10);
-                })
+        leftDrop3 = drive.trajectorySequenceBuilder(leftDrop2.end())
+                .forward(6)
+                .build();
+
+        rightDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
+                .lineTo(new Vector2d(dropPos.getX() + 3, dropPos.getY()), velCons, accCons)
+                .turn(Math.toRadians(-90))
+                .build();
+
+        rightDrop2 = drive.trajectorySequenceBuilder(rightDrop.end())
+                .back(5)
+                .build();
+
+        rightDrop3 = drive.trajectorySequenceBuilder(rightDrop2.end())
+                .forward(6)
+                .build();
+
+        waitSome = drive.trajectorySequenceBuilder(startPose)
+                .waitSeconds(2)
                 .build();
 
         waitForStart(); /*****  DON'T RUN ANY MOTOR MOVEMENT ABOVE THIS LINE!! You WILL get PENALTIES! And it's UNSAFE! *****/
-        if(isStopRequested()) return;
+        if (isStopRequested()) return;
 
-        drive.followTrajectorySequence(FunkyForward);
-        switch (pos) {
-            case CENTER:
-                telemetry.addData("going center: ", 1);
-                drive.followTrajectory(centerDrop);
-                break;
-            case LEFT:
-                telemetry.addData("going left: ", 1);
-                drive.followTrajectorySequence(leftDrop);
-                break;
-            case RIGHT:
-                telemetry.addData("going right: ", 1);
-                drive.followTrajectorySequence(rightDrop);
-                break;
-            case UNK:
-                telemetry.addData("brok me", "");
-                break;
-        }
-        purplePixelDropper.setPosition(purplePixelServoUp); // reset the position of the pixel dropper to up for hardware safety
+        /***** start of manual code running or initiation or whatever *****/
 
-
-    }
-
-    public void SpikeDetect(int count)
-    {
-
-        // pointing at CENTER spike mark from detectPos
-        for (int i = 0; i < count; i++) {
-            telemetryTfod();
-        }
-        if (currentRecognitions != null && currentRecognitions.size()==1) { // detect center
-            telemetry.addData("Detected on center: ", 1);
-            pos = SpikeDetectionPos.CENTER;
-            return;
-        }
-        drive.turn(35); // turn left to setup for detecting left
-        for (int i = 0; i < count; i++) {
-            telemetryTfod();
-        }
-        if (currentRecognitions != null && currentRecognitions.size()==1) { // detect left
-            telemetry.addData("Detected on left: ", 1);
-            pos = SpikeDetectionPos.LEFT;
-            drive.turn(-35); // turn back to face straight
-            return;
-        }
-        if (true) { // this worked in the old code, maybe it'll work here too? // drop right if not on center or left
-            drive.turn(-35); // turn back to face straight
+        drive.followTrajectory(FunkyForward); // go forward to the distance we need to detect at
+        label:
+        {
+            drive.followTrajectorySequence(waitSome);
+            for (int i=0; i<10; i++) {
+                telemetryTfod(); // detect
+            }
+            if (currentRecognitions != null && currentRecognitions.size() == 1) {
+                pos = SpikeDetectionPos.CENTER;
+                break label;
+            }
+            drive.turn(Math.toRadians(35)); // left 35
+            drive.followTrajectorySequence(waitSome);
+            for (int i=0; i<10; i++) {
+                telemetryTfod(); // detect
+            }
+            if (currentRecognitions != null && currentRecognitions.size() == 1) {
+                pos = SpikeDetectionPos.LEFT;
+                drive.turn(Math.toRadians(-35)); // face back forward
+                break label;
+            }
             pos = SpikeDetectionPos.RIGHT;
+            drive.turn(Math.toRadians(-35)); // turn to face forward
+        }
+        if (pos == SpikeDetectionPos.CENTER) {
+            drive.followTrajectorySequence(centerDrop);
+            drive.followTrajectorySequence(centerDrop2);
+            purplePixelDropper.setPosition(purplePixelServoDown);
+            drive.followTrajectorySequence(waitSome);
+            purplePixelDropper.setPosition(purplePixelServoUp);
+            drive.followTrajectorySequence(waitSome);
+        }
+        else if (pos == SpikeDetectionPos.LEFT) {
+            drive.followTrajectorySequence(leftDrop);
+            drive.followTrajectorySequence(leftDrop2);
+            drive.followTrajectorySequence(leftDrop3);
+            purplePixelDropper.setPosition(purplePixelServoDown);
+            drive.followTrajectorySequence(waitSome);
+            purplePixelDropper.setPosition(purplePixelServoUp);
+            drive.followTrajectorySequence(waitSome);
+        }
+        else if (pos == SpikeDetectionPos.RIGHT) {
+            drive.followTrajectorySequence(rightDrop);
+            drive.followTrajectorySequence(rightDrop2);
+            drive.followTrajectorySequence(rightDrop3);
+            purplePixelDropper.setPosition(purplePixelServoDown);
+            drive.followTrajectorySequence(waitSome);
+            purplePixelDropper.setPosition(purplePixelServoUp);
+            drive.followTrajectorySequence(waitSome);
         }
 
+
+        // detect straight, if on straight drive to dropPos and drop pixel
+        // turn left ~35 ish degrees
+        // detect left , if on left drive to dropPos, turn left 90, drive forward then back 5 inches, and drop pixel
+        // if not on left, turn right ~35 ish degrees
+        // drive to dropPos, turn right 90, drive forward then back 5 inches, and drop pixel
+
+
+//        purplePixelDropper.setPosition(purplePixelServoUp); // reset the position of the pixel dropper to up for hardware safety
+
+        /***** end of manual code running or initiation or whatever *****/
     }
+
 
     private void initTfod() {
-
         // Create the TensorFlow processor by using a builder.
         tfod = new TfodProcessor.Builder()
-
-                // Use setModelAssetName() if the TF Model is built in as an asset.
-                // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
                 .setModelAssetName(TFOD_MODEL_ASSET)
-                //.setModelFileName(TFOD_MODEL_FILE)
-
                 .setModelLabels(LABELS)
-                //.setIsModelTensorFlow2(true)
-                //.setIsModelQuantized(true)
-                //.setModelInputSize(300)
                 .setModelAspectRatio(4.0 / 3.0)
-
                 .build();
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
-
         // Set the camera (webcam vs. built-in RC phone camera).
         if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
@@ -206,39 +232,26 @@ public class AutoRedStageLong extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions. // should probably set this correctly
-        //builder.setCameraResolution(new Size(640, 480));
-
+        builder.setCameraResolution(new Size(1280, 720));
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableCameraMonitoring(true);
         builder.enableLiveView(true);
-
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-
-        // Choose whether or not LiveView stops if no processors are enabled.
-        // If set "true", monitor shows solid orange screen if no processors enabled.
-        // If set "false", monitor shows camera view without annotations.
-        //builder.setAutoStopLiveView(false);
-
         // Set and enable the processor.
         builder.addProcessor(tfod);
-
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
-
         // Set confidence threshold for TFOD recognitions, at any time.
-        tfod.setMinResultConfidence(0.65f);
-
+        tfod.setMinResultConfidence(0.85f);
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true); // LOOK AT THIS, this looks like a
         // good way to start and stop the vision processing when we go to detect the pixel on the
         // spike mark
-
     }   // end method initTfod()
 
     List<Recognition> currentRecognitions;
     private void telemetryTfod() {
 
+        telemetry.clearAll();
         currentRecognitions = tfod.getRecognitions();
         telemetry.addData("# Objects Detected", currentRecognitions.size());
 

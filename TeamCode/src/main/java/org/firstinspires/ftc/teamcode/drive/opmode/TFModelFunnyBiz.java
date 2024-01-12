@@ -61,8 +61,8 @@ public class TFModelFunnyBiz extends LinearOpMode {
      * The variable to store our instance of the vision portal.
      */
     private VisionPortal visionPortal;
-//    String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
-    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
+    String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
+//    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
     private static final String[] LABELS = {
             "Viking"
     };
