@@ -23,6 +23,9 @@ public class RobotCentr extends LinearOpMode{
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
+    Double yellowPixelUp = 0.1;
+    Double yellowPixelDown = 0.45;
+
 
     @Override
     public void runOpMode() {
@@ -123,6 +126,14 @@ public class RobotCentr extends LinearOpMode{
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
 
+            if (aimer) {
+
+                yellowPixelServo.setPosition(yellowPixelDown);
+
+            } else {
+                yellowPixelServo.setPosition(yellowPixelUp);
+            }
+
             // Send calculated power to wheels
             if (slowMode > 0.2) {
 
@@ -157,13 +168,6 @@ public class RobotCentr extends LinearOpMode{
                 planeServo.setPosition(-0.25);
             } else {
                 planeServo.setPosition(0.25);
-            }
-
-            if(gamepad1.a){
-                purplePixelServo.setPosition(0);
-            } else if(gamepad1.b)
-            {
-                purplePixelServo.setPosition(0.7);
             }
 
             // Show the elapsed game time and wheel power.

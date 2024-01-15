@@ -1,26 +1,25 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static org.firstinspires.ftc.teamcode.drive.opmode.RobotStartPosEnums.*;
+
 import android.util.Size;
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.profile.VelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
@@ -28,7 +27,7 @@ import java.util.List;
 
 
 // Team 23974 A.S.T.R.O. Vikings, Centerstage 2023-2024
-@Autonomous
+@Autonomous(name="VikingAuto", group ="AHHHHHHHH", preselectTeleOp = "RobotCentr")
 public class AutoRedStageLong extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -45,8 +44,10 @@ public class AutoRedStageLong extends LinearOpMode {
      */
     private VisionPortal visionPortal;
 
-    String TFOD_MODEL_ASSET = "BLUEmodel_20231211_180224.tflite";
-    //    String TFOD_MODEL_ASSET = "REDmodel_20240106_120831.tflite";
+    String BlueTFModel = "BLUEmodel_20231211_180224.tflite";
+    String RedTFModel = "REDmodel_20240106_120831.tflite";
+
+    String TFOD_MODEL_ASSET = BlueTFModel;
     private static final String[] LABELS = {
             "Viking"
     };
@@ -56,10 +57,13 @@ public class AutoRedStageLong extends LinearOpMode {
 
     Servo purplePixelDropper;
 
-//    Servo yellowPixelDropper = hardwareMap.servo.get("yellowPixel");
+    Servo yellowPixelDropper;
 
     double purplePixelServoUp = 0.8;
     double purplePixelServoDown = 0;
+
+    Double yellowPixelUp = 0.1;
+    Double yellowPixelDown = 0.45; ; // change this
 
 
     TrajectorySequence centerDrop;
@@ -74,14 +78,21 @@ public class AutoRedStageLong extends LinearOpMode {
     TrajectorySequence rightDrop3;
 
     TrajectorySequence waitSome;
+    RobotStartPosEnums StartingPosition;
+
+    TrajectorySequence driveToBoard;
 
 
     Vector2d detectPos = new Vector2d(12, 0);
     Vector2d dropPos = new Vector2d(25, 0);
 
+    Vector2d BackBoard = new Vector2d(0, 0);
+
+
     @Override
     public void runOpMode() {
         purplePixelDropper = hardwareMap.servo.get("purplePixel");
+        yellowPixelDropper = hardwareMap.servo.get("yellowPixel");
         double slowerVelocity = 25; // 25 is half ish of the full speed
         TrajectoryVelocityConstraint velCons = SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint accCons = SampleMecanumDrive.getAccelerationConstraint(slowerVelocity);
@@ -106,6 +117,8 @@ public class AutoRedStageLong extends LinearOpMode {
                 .lineTo(detectPos, velCons, accCons) // make it simple????? IDK anymore dude - "M" at 1/10/24 8:05PM
                 .build(); // build it
 
+
+
         centerDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
                 .lineTo(new Vector2d(32, 0), velCons, accCons)
                 .build();
@@ -117,14 +130,15 @@ public class AutoRedStageLong extends LinearOpMode {
         leftDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
                 .lineTo(new Vector2d(dropPos.getX() + 3, dropPos.getY()), velCons, accCons)
                 .turn(Math.toRadians(90))
+                .strafeLeft(7, velCons, accCons)
                 .build();
 
         leftDrop2 = drive.trajectorySequenceBuilder(leftDrop.end())
-                .back(5)
+                .back(5, velCons, accCons)
                 .build();
 
         leftDrop3 = drive.trajectorySequenceBuilder(leftDrop2.end())
-                .forward(6)
+                .forward(7, velCons, accCons)
                 .build();
 
         rightDrop = drive.trajectorySequenceBuilder(new Pose2d(detectPos.getX(), detectPos.getY(), Math.toRadians(180)))
@@ -133,16 +147,58 @@ public class AutoRedStageLong extends LinearOpMode {
                 .build();
 
         rightDrop2 = drive.trajectorySequenceBuilder(rightDrop.end())
-                .back(5)
+                .back(5, velCons, accCons)
                 .build();
 
         rightDrop3 = drive.trajectorySequenceBuilder(rightDrop2.end())
-                .forward(6)
+                .forward(6, velCons, accCons)
                 .build();
 
         waitSome = drive.trajectorySequenceBuilder(startPose)
                 .waitSeconds(2)
                 .build();
+
+
+        // not an idea "Repurposed" from FTC WIRES
+        telemetry.addData("blue backdrop - (X)","");
+        telemetry.addData("blue audience - (A)","");
+        telemetry.addData("red backdrop - (Y)","");
+        telemetry.addData("red audience - (B)","");
+        telemetry.update();
+
+        // set the starting pos and the tfod model based on alliance color
+        while (true) {
+            if (gamepad1.x) {
+                StartingPosition = BLUE_BACKDROP;
+                TFOD_MODEL_ASSET = BlueTFModel;
+                BackBoard = new Vector2d(24, 24);
+                telemetry.addData("Blue Backdrop Selected!", "");
+                telemetry.update();
+                break;
+            } else if (gamepad1.a) {
+                StartingPosition = BLUE_AUDIENCE;
+                TFOD_MODEL_ASSET = BlueTFModel;
+                BackBoard = new Vector2d(24, 72);
+                telemetry.addData("Blue Audience Selected!", "");
+                telemetry.update();
+                break;
+            } else if (gamepad1.y) {
+                StartingPosition = RED_AUDIENCE;
+                TFOD_MODEL_ASSET = RedTFModel;
+                BackBoard = new Vector2d(24, -72);
+                telemetry.addData("Red Audience Selected!", "");
+                telemetry.update();
+                break;
+            } else if (gamepad1.b) {
+                StartingPosition = RED_BACKDROP;
+                TFOD_MODEL_ASSET = RedTFModel;
+                BackBoard = new Vector2d(24, -24);
+                telemetry.addData("Red Backdrop Selected!", "");
+                telemetry.update();
+                break;
+            }
+
+        }
 
         waitForStart(); /*****  DON'T RUN ANY MOTOR MOVEMENT ABOVE THIS LINE!! You WILL get PENALTIES! And it's UNSAFE! *****/
         if (isStopRequested()) return;
@@ -180,8 +236,13 @@ public class AutoRedStageLong extends LinearOpMode {
             drive.followTrajectorySequence(waitSome);
             purplePixelDropper.setPosition(purplePixelServoUp);
             drive.followTrajectorySequence(waitSome);
-        }
-        else if (pos == SpikeDetectionPos.LEFT) {
+            if (StartingPosition == BLUE_BACKDROP) {
+                driveToBoard = drive.trajectorySequenceBuilder(centerDrop2.end())
+                        .lineTo(detectPos)
+                        .lineToLinearHeading(vectorToPose(BackBoard, 270))
+                        .build();
+            }
+        } else if (true) {
             drive.followTrajectorySequence(leftDrop);
             drive.followTrajectorySequence(leftDrop2);
             drive.followTrajectorySequence(leftDrop3);
@@ -189,8 +250,14 @@ public class AutoRedStageLong extends LinearOpMode {
             drive.followTrajectorySequence(waitSome);
             purplePixelDropper.setPosition(purplePixelServoUp);
             drive.followTrajectorySequence(waitSome);
-        }
-        else if (pos == SpikeDetectionPos.RIGHT) {
+            if (StartingPosition == BLUE_BACKDROP) {
+                driveToBoard = drive.trajectorySequenceBuilder(leftDrop3.end())
+                        .lineTo(detectPos)
+                        .back(10, velCons, accCons)
+                        .lineToLinearHeading(vectorToPose(BackBoard, 270))
+                        .build();
+            }
+        } else if (pos == SpikeDetectionPos.RIGHT) {
             drive.followTrajectorySequence(rightDrop);
             drive.followTrajectorySequence(rightDrop2);
             drive.followTrajectorySequence(rightDrop3);
@@ -198,7 +265,14 @@ public class AutoRedStageLong extends LinearOpMode {
             drive.followTrajectorySequence(waitSome);
             purplePixelDropper.setPosition(purplePixelServoUp);
             drive.followTrajectorySequence(waitSome);
+            if (StartingPosition == BLUE_BACKDROP) {
+                driveToBoard = drive.trajectorySequenceBuilder(rightDrop3.end())
+                        .lineTo(detectPos)
+                        .lineToLinearHeading(vectorToPose(BackBoard, 270))
+                        .build();
+            }
         }
+        drive.followTrajectorySequence(driveToBoard);
 
 
         // detect straight, if on straight drive to dropPos and drop pixel
@@ -269,4 +343,16 @@ public class AutoRedStageLong extends LinearOpMode {
         }   // end for() loop
 
     }   // end method telemetryTfod()
+
+    public Vector2d poseToVector(Pose2d Pose) {
+        return new Vector2d(Pose.getX(), Pose.getY());
+    }
+    public Pose2d vectorToPose(Vector2d Vector, Double Heading) {
+        return new Pose2d(Vector.getX(), Vector.getY(), Math.toRadians(Heading));
+    }
+
+    public Pose2d vectorToPose(Vector2d Vector, int Heading) {
+        return new Pose2d(Vector.getX(), Vector.getY(), Math.toRadians(Heading));
+    }
+
 }
