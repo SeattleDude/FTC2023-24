@@ -122,6 +122,14 @@ public final class MecanumDrive {
     public final AccelConstraint defaultAccelConstraint =
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
+//    public AccelConstraint getDefaultAccelConstraint() {
+//        return defaultAccelConstraint;
+//    }
+//
+//    public VelConstraint getDefaultVelConstraint() {
+//        return defaultVelConstraint;
+//    }
+
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
 
     public final VoltageSensor voltageSensor;

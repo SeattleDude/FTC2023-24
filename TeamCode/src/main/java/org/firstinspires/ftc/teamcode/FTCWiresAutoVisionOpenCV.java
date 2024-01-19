@@ -35,7 +35,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -93,15 +96,20 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
     double yellowPixelUp = 0.1;
     double yellowPixelDown = 0.45;
 
-    double yellowPixelWhack = 0.6;
+    double yellowPixelWhack = 0.5;
 
     Servo purplePixelServo;
     Servo yellowPixelServo;
+//    MecanumDrive drive;
+
 
     public static IDENTIFIED_SPIKE_MARK_LOCATION identifiedSpikeMarkLocation = IDENTIFIED_SPIKE_MARK_LOCATION.LEFT;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+//        VelConstraint velCons = drive.getDefaultVelConstraint();
+//        AccelConstraint accCons = drive.getDefaultAccelConstraint();
 
         purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
         yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
@@ -186,8 +194,8 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                         dropYellowPixelPose = new Pose2d(20, 36,  Math.toRadians(-90));
                         break;
                     case RIGHT:
-                        dropPurplePixelPose = new Pose2d(20, -7, Math.toRadians(135)); // -45
-                        dropYellowPixelPose = new Pose2d(27, 38, Math.toRadians(-90));
+                        dropPurplePixelPose = new Pose2d(20, -3.5, Math.toRadians(135)); // -45
+                        dropYellowPixelPose = new Pose2d(27, 38 , Math.toRadians(-90));
                         break;
                 }
                 midwayPose1 = new Pose2d(10, 17, Math.toRadians(135)); // -45
@@ -220,21 +228,22 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                 drive = new MecanumDrive(hardwareMap, initPose);
                 switch(identifiedSpikeMarkLocation){
                     case LEFT:
-                        dropPurplePixelPose = new Pose2d(27, 9, Math.toRadians(225)); // 45
-                        dropYellowPixelPose = new Pose2d(27, 86, Math.toRadians(-90));
+                        dropPurplePixelPose = new Pose2d(20, 4, Math.toRadians(225)); // 45
+                        dropYellowPixelPose = new Pose2d(18, 91, Math.toRadians(-90));
                         break;
                     case MIDDLE:
                         dropPurplePixelPose = new Pose2d(27, -3, Math.toRadians(180 + Math.pow(10, -10))); // 0
-                        dropYellowPixelPose = new Pose2d(34, 86, Math.toRadians(-90));
+                        dropYellowPixelPose = new Pose2d(23, 89, Math.toRadians(-90));
                         break;
                     case RIGHT:
-                        dropPurplePixelPose = new Pose2d(26, -8, Math.toRadians(180 + Math.pow(10, -10))); // 0
-                        dropYellowPixelPose = new Pose2d(43, 86, Math.toRadians(-90));
+                        dropPurplePixelPose = new Pose2d(16, -9, Math.toRadians(180 + Math.pow(10, -10))); // 0
+                        dropYellowPixelPose = new Pose2d(32, 89, Math.toRadians(-90));
                         break;
                 }
                 midwayPose1 = new Pose2d(8, -8, Math.toRadians(180 + Math.pow(10, -10))); // 0
-                midwayPose1a = new Pose2d(18, -18, Math.toRadians(90)); //-90
-                intakeStack = new Pose2d(52, -19,Math.toRadians(-90));
+                midwayPose1a = new Pose2d(18, -20, Math.toRadians(180)); //-90
+                intakeStack = new Pose2d(52, -20,Math.toRadians(180)); //-90
+                midwayPose1b = new Pose2d(52, 0, Math.toRadians(-90));
                 midwayPose2 = new Pose2d(52, 62, Math.toRadians(-90));
                 waitSecondsBeforeDrop = 2; //TODO: Adjust time to wait for alliance partner to move from board
                 parkPose = new Pose2d(50, 84, Math.toRadians(-90));
