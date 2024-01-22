@@ -48,6 +48,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.CameraControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -59,6 +61,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * FTC WIRES Autonomous Example for only vision detection using tensorflow and park
@@ -130,6 +133,7 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
 
 
         //Activate Camera Vision that uses Open CV Vision processor for Team Element detection
+
         initOpenCV();
 
         // Wait for the DS start button to be touched.
@@ -163,7 +167,6 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
 
         purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
         yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
-
 
         Pose2d initPose = new Pose2d(0, 0, 0); // Starting Pose
         Pose2d moveBeyondTrussPose = new Pose2d(0,0,0);
@@ -254,15 +257,15 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                 switch(identifiedSpikeMarkLocation){
                     case LEFT:
                         dropPurplePixelPose = new Pose2d(16, 8, Math.toRadians(180 + Math.pow(10, -10))); // 0
-                        dropYellowPixelPose = new Pose2d(37, -88, Math.toRadians(90));
+                        dropYellowPixelPose = new Pose2d(37, -87, Math.toRadians(90));
                         break;
                     case MIDDLE:
                         dropPurplePixelPose = new Pose2d(25, 1, Math.toRadians(180 + Math.pow(10, -10))); // 0
-                        dropYellowPixelPose = new Pose2d(31, -89, Math.toRadians(90));
+                        dropYellowPixelPose = new Pose2d(31, -88, Math.toRadians(90));
                         break;
                     case RIGHT:
                         dropPurplePixelPose = new Pose2d(27, -9, Math.toRadians(135)); // -45
-                        dropYellowPixelPose = new Pose2d(23, -89, Math.toRadians(90));
+                        dropYellowPixelPose = new Pose2d(23, -88, Math.toRadians(90));
                         break;
                 }
                 midwayPose1 = new Pose2d(8, 8, Math.toRadians(180 + Math.pow(10, -10))); // 0
@@ -305,7 +308,7 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                             .build());
 
             //TODO : Code to intake pixel from stack
-            safeWaitSeconds(1);
+            safeWaitSeconds(3); // before we transit thru the stage door
 
             //Move robot to midwayPose2 and to dropYellowPixelPose
             Actions.runBlocking(
@@ -314,7 +317,7 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                             .build());
         }
 
-        safeWaitSeconds(waitSecondsBeforeDrop);
+        safeWaitSeconds(waitSecondsBeforeDrop); // midway 2 to yellow pixel
 
         //Move robot to midwayPose2 and to dropYellowPixelPose
         Actions.runBlocking(
@@ -391,6 +394,8 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
      * Initialize the Open CV Object Detection processor.
      */
     public Rect rectLeftOfCameraMid, rectRightOfCameraMid;
+    public CameraControl cControl;
+
     private void initOpenCV() {
         visionOpenCV = new VisionOpenCV(hardwareMap);
 
@@ -424,19 +429,21 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
 
         public VisionPortal visionPortal;
 
+
         Mat submat = new Mat();
         Mat hsvMat = new Mat();
 
         public double satRectLeftOfCameraMid, satRectRightOfCameraMid;
-        public double satRectNone = 27.0;
+        public double satRectNone = 25.0;
 
         public VisionOpenCV(HardwareMap hardwareMap){
             visionPortal = VisionPortal.easyCreateWithDefaults(
                     hardwareMap.get(WebcamName.class, "Webcam 1"), this);
+//            ExposureControl cControl = visionPortal.getCameraControl(ExposureControl.class);
         }
 
         @Override
-        public void init(int width, int height, CameraCalibration calibration) {
+        public void init(int width, int height, CameraCalibration calibration){
         }
 
         @Override

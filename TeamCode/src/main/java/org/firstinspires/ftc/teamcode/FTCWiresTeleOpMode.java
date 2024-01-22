@@ -23,22 +23,19 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
 //    DcMotor leftBackDrive = hardwareMap.dcMotor.get("leftRear");
 //    DcMotor rightFrontDrive = hardwareMap.dcMotor.get("rightFront");
 //    DcMotor rightBackDrive = hardwareMap.dcMotor.get("rightRear");
-    DcMotor lifterMotor = hardwareMap.dcMotor.get("lifter");
-    DcMotor armMotor = hardwareMap.dcMotor.get("armer");
-    DcMotor armMotor2 = hardwareMap.dcMotor.get("armer2");
-    Servo planeServo = hardwareMap.servo.get("droneLauncher");
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        DcMotor lifterMotor = hardwareMap.dcMotor.get("lifter");
+        DcMotor armMotor = hardwareMap.dcMotor.get("armer");
+        DcMotor armMotor2 = hardwareMap.dcMotor.get("armer2");
+        Servo planeServo = hardwareMap.servo.get("droneLauncher");
+
 //        double SLOW_DOWN_FACTOR = 0.5; //TODO Adjust to driver comfort // unnecessary for us
         telemetry.addData("Initializing FTC Wires (ftcwires.org) TeleOp adopted for Team:","TEAM NUMBER");
         telemetry.update();
 
-        double slowMode = gamepad1.left_trigger;
-        double slowCoeff = 0.3;
-
-        double lifterThing = -gamepad2.right_stick_y;
-        double operatorArm = -gamepad2.left_stick_y;
         boolean plane = false;
 
 
@@ -48,6 +45,12 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
             waitForStart();
 
             while (opModeIsActive()) {
+
+                double slowMode = gamepad1.left_trigger;
+                double slowCoeff = 0.3;
+
+                double lifterThing = -gamepad2.right_stick_y;
+                double operatorArm = -gamepad2.left_stick_y;
 
                 telemetry.addData("Running FTC Wires (ftcwires.org) TeleOp Mode adopted for Team:","TEAM NUMBER");
 
