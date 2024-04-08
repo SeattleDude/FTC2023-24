@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
@@ -16,79 +17,170 @@ import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
  */
 
 
+
 @TeleOp(name = "FTC Wires TeleOp", group = "00-Teleop")
 public class FTCWiresTeleOpMode extends LinearOpMode {
+    DcMotor leftExtend;
+    DcMotor rightExtend;
+    DcMotor leftRotate;
+    DcMotor rightRotate;
 
-//    DcMotor leftFrontDrive = hardwareMap.dcMotor.get("leftFront");
-//    DcMotor leftBackDrive = hardwareMap.dcMotor.get("leftRear");
-//    DcMotor rightFrontDrive = hardwareMap.dcMotor.get("rightFront");
-//    DcMotor rightBackDrive = hardwareMap.dcMotor.get("rightRear");
+    //Method to rotate Arms
+    public void rotateArm(float rotationAmount) {
+//        leftRotate.setTargetPosition(rotationAmount);
+//        rightRotate.setTargetPosition(-rotationAmount);
+        if ((leftRotate.getCurrentPosition() >= 0) || (leftRotate.getCurrentPosition() < 10000)) {
+            leftRotate.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+        } else {
+            leftRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightRotate.setDirection(DcMotorSimple.Direction.FORWARD);
+        }
+        leftRotate.setPower(rotationAmount);
+        rightRotate.setPower(rotationAmount);
+    }
+
+    //Method to Extend Arms
+    public void extendArm(float extensionAmount) {
+//        leftExtend.setTargetPosition(extensionAmount);
+//        rightExtend.setTargetPosition(-extensionAmount);
+        if ((leftExtend.getCurrentPosition() >= 0) || (leftExtend.getCurrentPosition() < 2000)) {
+            leftExtend.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+        } else {
+            leftExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightExtend.setDirection(DcMotorSimple.Direction.FORWARD);
+        }
+        leftExtend.setPower(extensionAmount);
+        rightExtend.setPower(extensionAmount);
+    }
+
+//    DcMotor leftFrontDrive = hardwareMap.dcMotor.get("FLdrive");
+//    DcMotor leftBackDrive = hardwareMap.dcMotor.get("BLdrive");
+//    DcMotor rightFrontDrive = hardwareMap.dcMotor.get("FRdrive");
+//    DcMotor rightBackDrive = hardwareMap.dcMotor.get("BRdrive");
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        DcMotor lifterMotor = hardwareMap.dcMotor.get("lifter");
-        DcMotor armMotor = hardwareMap.dcMotor.get("armer");
-        DcMotor armMotor2 = hardwareMap.dcMotor.get("armer2");
-        Servo planeServo = hardwareMap.servo.get("droneLauncher");
+        leftExtend = hardwareMap.get(DcMotor.class, "leftExtend");
+        leftExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightExtend = hardwareMap.get(DcMotor.class, "rightExtend");
+        rightExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRotate = hardwareMap.get(DcMotor.class, "leftRotate");
+        leftRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRotate = hardwareMap.get(DcMotor.class, "rightRotate");
+        rightRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        Servo wristServo = hardwareMap.servo.get("wrist");
+        Servo leftFingerServo = hardwareMap.servo.get("leftFinger");
+        Servo rightFingerServo = hardwareMap.servo.get("rightFinger");
+
+        Servo planeServo = hardwareMap.servo.get("droneRelease");
 
 //        double SLOW_DOWN_FACTOR = 0.5; //TODO Adjust to driver comfort // unnecessary for us
         telemetry.addData("Initializing FTC Wires (ftcwires.org) TeleOp adopted for Team:","TEAM NUMBER");
         telemetry.update();
 
-        boolean plane = false;
+        boolean leftGrab = false;
+        boolean rightGrab = false;
 
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
+            leftExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // all this needs to be replaced with a custom pid tuned motion method
+            leftRotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+//            11192 extend limit
+//            2035 rotate limit
+
             waitForStart();
 
             while (opModeIsActive()) {
 
+                boolean plane = false;
                 double slowMode = gamepad1.left_trigger;
                 double slowCoeff = 0.3;
 
-                double lifterThing = -gamepad2.right_stick_y;
-                double operatorArm = -gamepad2.left_stick_y;
+                gam
+
 
                 telemetry.addData("Running FTC Wires (ftcwires.org) TeleOp Mode adopted for Team:","TEAM NUMBER");
 
                 if (slowMode > 0.2) { // check if we are trying to enter "slowmode" with the left trigger on driver gamepad
                     drive.setDrivePowers(new PoseVelocity2d(
                             new Vector2d(
-                                    -gamepad1.left_stick_y * slowCoeff,
-                                    -gamepad1.left_stick_x * slowCoeff
+                                    gamepad1.left_stick_y * slowCoeff,
+                                    gamepad1.left_stick_x * slowCoeff
                             ),
-                            -gamepad1.right_stick_x * slowCoeff
+                            gamepad1.right_stick_x * slowCoeff
                     ));
                 } else {
                     drive.setDrivePowers(new PoseVelocity2d(
                             new Vector2d(
-                                    -gamepad1.left_stick_y,
-                                    -gamepad1.left_stick_x
+                                    gamepad1.left_stick_y,
+                                    gamepad1.left_stick_x
                             ),
-                            -gamepad1.right_stick_x
+                            gamepad1.right_stick_x
                     ));
                 }
 
-                armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                armMotor.setPower(operatorArm * 0.4);
-                armMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                armMotor2.setPower(operatorArm * 0.4);
-                lifterMotor.setPower(lifterThing);
-
-                if (gamepad2.right_bumper && gamepad2.left_bumper) {
-                    plane = true;
-                } else {
-                    plane = false;
+                if (gamepad2.left_trigger > 0.2) { // rotate CCW
+                    wristServo.setPosition(wristServo.getPosition() + 0.02);
+                } else if (gamepad2.right_trigger > 0.2) { // rotate CW
+                    wristServo.setPosition(wristServo.getPosition() - 0.02);
                 }
 
-                if (plane == true) {
-                    planeServo.setPosition(-0.25);
-                } else {
-                    planeServo.setPosition(0.25);
+                if (gamepad2.left_bumper) {
+                    leftGrab = !leftGrab;
                 }
+
+                if (gamepad2.right_bumper) {
+                    rightGrab = !rightGrab;
+                }
+
+                if (leftGrab) {
+                    leftFingerServo.setPosition(1);
+                } else {
+                    leftFingerServo.setPosition(0);
+                }
+
+                if (rightGrab) {
+                    rightFingerServo.setPosition(0);
+                } else {
+                    rightFingerServo.setPosition(1);
+                }
+
+                if (gamepad1.left_bumper && gamepad1.right_bumper) {
+                    plane = true
+                }
+
+                extendArm(gamepad2.left_stick_x);
+                rotateArm(-gamepad2.left_stick_y);
+
+                telemetry.addData("extend encoder ", leftExtend.getCurrentPosition());
+                telemetry.addData("rotate encoder ", leftRotate.getCurrentPosition());
+
+
+
+//
+//                if (gamepad2.right_bumper && gamepad2.left_bumper) {
+//                    plane = true;
+//                } else {
+//                    plane = false;
+//                }
+//
+//                if (plane == true) {
+//                    planeServo.setPosition(-0.25);
+//                } else {
+//                    planeServo.setPosition(0.25);
+//                }
 
                 drive.updatePoseEstimate();
 

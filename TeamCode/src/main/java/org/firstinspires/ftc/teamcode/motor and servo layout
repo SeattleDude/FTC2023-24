@@ -1,0 +1,80 @@
+MOTORS:
+    drive grouping: ///// this just means we don't need to actually individually address these motors in code
+        FR drive - (ExtensionHub, 0)
+        FL drive - (ExtensionHub, 1)
+        BL drive - (ExtensionHub, 2)
+        BR drive - (ExtensionHub, 3)
+
+    leftRotate - (ControlHub, 0)
+    leftExtend - (ControlHub, 1)
+    rightExtend - (ControlHub, 2)
+    rightRotate - (ControlHub, 3)
+
+SERVOS:
+    wristServ - ()
+    leftFingerServ - ()
+    rightFingerServ - ()
+
+LIGHTS:
+    blinkin - ()
+
+
+
+Jobs for drive team:
+    slow mode button for drive (could be a button, at states we used the left trigger on drive controller when it passed a 0.3/1.0 threshold)
+    drive wheels (takes 2 joysticks from a controller)
+    extension and rotation of arm (takes at least one joystick, both x and y or two joysticks)
+    hand grip servos (toggle switch code for the bumpers)
+    wrist servo (might be able to automate for perfect angling on the board (35 deg nominal))
+    drone servo (only takes one button, but for safety we will want at least a 2 switch system)
+
+
+% means the control is analog (0-1 on the triggers) (-1 to 1 on the joysticks)
+
+Drive controller layout:
+    x button -
+    y button -
+    a button -
+    b button -
+    start button -
+    back button -
+    dpad up -
+    dpad down -
+    dpad left -
+    dpad right -
+    left bumper -
+    right bumper -
+    *left joystick button -
+    *right joystick button -
+    mode button (Idk if we can access this one, it would be good for the slow mode since it is a toggle)
+
+    % left trigger -
+    % right trigger -
+    % left joystick x - left/right drive wheels
+    % left joystick y - forward/back drive wheels
+    % right joystick x - turn/spin drive
+    % right joystick y -
+
+operator controller layout:
+    x button -
+    y button -
+    a button -
+    b button -
+    start button -
+    back button -
+    dpad up -
+    dpad down -
+    dpad left -
+    dpad right -
+    left bumper - drone launcher(old, in addition to the right bumper as a safety)
+    right bumper - ^^^^^
+    *left joystick button -
+    *right joystick button -
+    mode button (Idk if we can access this one, it would be good for the slow mode since it is a toggle)
+
+    % left trigger -
+    % right trigger -
+    % left joystick x -
+    % left joystick y - arm in and out
+    % right joystick x -
+    % right joystick y - arm rotate up and down

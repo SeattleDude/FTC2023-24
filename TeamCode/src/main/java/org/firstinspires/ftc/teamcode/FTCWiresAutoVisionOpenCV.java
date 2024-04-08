@@ -93,17 +93,24 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
     }
 
 
-    double purplePixelServoUp = 0.8;
-    double purplePixelServoDown = 0;
 
-    double yellowPixelUp = 0.1;
-    double yellowPixelDown = 0.45;
 
-    double yellowPixelWhack = 0.5;
+//    double purplePixelServoUp = 0.8;
+//    double purplePixelServoDown = 0;
+//
+//    double yellowPixelUp = 0.1;
+//    double yellowPixelDown = 0.45;
+//
+//    double yellowPixelWhack = 0.5;
+//
+//    Servo purplePixelServo;
+//    Servo yellowPixelServo;
 
-    Servo purplePixelServo;
-    Servo yellowPixelServo;
-//    MecanumDrive drive;
+    MecanumDrive drive;
+    DcMotor leftExtend;
+    DcMotor rightExtend;
+    DcMotor leftRotate;
+    DcMotor rightRotate;
 
 
     public static IDENTIFIED_SPIKE_MARK_LOCATION identifiedSpikeMarkLocation = IDENTIFIED_SPIKE_MARK_LOCATION.LEFT;
@@ -114,17 +121,23 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
 //        VelConstraint velCons = drive.getDefaultVelConstraint();
 //        AccelConstraint accCons = drive.getDefaultAccelConstraint();
 
-        purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
-        yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
+//        purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
+//        yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
+//
+//        DcMotor armLeft = hardwareMap.get(DcMotor.class, "armer");
+//        DcMotor armRight = hardwareMap.get(DcMotor.class, "armer2");
+//
+//        armLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        armRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        purplePixelServo.setPosition(purplePixelServoUp);
+//        yellowPixelServo.setPosition(yellowPixelUp);
+////   get names
+       leftExtend = hardwareMap.get(DcMotor.class, "leftExtend");
+       rightExtend = hardwareMap.get(DcMotor.class, "rightExtend");
+       leftRotate = hardwareMap.get(DcMotor.class, "leftRotate");
+       rightRotate = hardwareMap.get(DcMotor.class, "rightRotate");
 
-        DcMotor armLeft = hardwareMap.get(DcMotor.class, "armer");
-        DcMotor armRight = hardwareMap.get(DcMotor.class, "armer2");
-
-        armLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        armRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        purplePixelServo.setPosition(purplePixelServoUp);
-        yellowPixelServo.setPosition(yellowPixelUp);
 
         //Key Pay inputs to selecting Starting Position of robot
         selectStartingPosition();
@@ -165,8 +178,8 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
     public void runAutonoumousMode() {
         //Initialize Pose2d as desired
 
-        purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
-        yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
+//        purplePixelServo = hardwareMap.get(Servo.class,"purplePixel");
+//        yellowPixelServo = hardwareMap.get(Servo.class,"yellowPixel");
 
         Pose2d initPose = new Pose2d(0, 0, 0); // Starting Pose
         Pose2d moveBeyondTrussPose = new Pose2d(0,0,0);
@@ -286,10 +299,10 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                         .build());
 
         //TODO : Code to drop Purple Pixel on Spike Mark
-        safeWaitSeconds(1);
-        purplePixelServo.setPosition(purplePixelServoDown);
-        safeWaitSeconds(1);
-        purplePixelServo.setPosition(purplePixelServoUp);
+//        safeWaitSeconds(1);
+//        purplePixelServo.setPosition(purplePixelServoDown);
+//        safeWaitSeconds(1);
+//        purplePixelServo.setPosition(purplePixelServoUp);
 
         //Move robot to midwayPose1
         Actions.runBlocking(
@@ -328,14 +341,14 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
 
 
         //TODO : Code to drop Pixel on Backdrop
-        safeWaitSeconds(1);
-        yellowPixelServo.setPosition(yellowPixelDown);
-        safeWaitSeconds(1);
-        yellowPixelServo.setPosition(yellowPixelUp);
-        safeWaitSeconds(1);
-        yellowPixelServo.setPosition(yellowPixelWhack);
-        safeWaitSeconds(1);
-        yellowPixelServo.setPosition(yellowPixelUp);
+//        safeWaitSeconds(1);
+//        yellowPixelServo.setPosition(yellowPixelDown);
+//        safeWaitSeconds(1);
+//        yellowPixelServo.setPosition(yellowPixelUp);
+//        safeWaitSeconds(1);
+//        yellowPixelServo.setPosition(yellowPixelWhack);
+//        safeWaitSeconds(1);
+//        yellowPixelServo.setPosition(yellowPixelUp);
 
         //Move robot to park in Backstage
         Actions.runBlocking(
@@ -345,6 +358,22 @@ public class FTCWiresAutoVisionOpenCV extends LinearOpMode {
                         .build());
     }
 
+
+    //Method to rotate Arms (May need to switch direction of rotation
+    public void rotateArm(int /*maybe int instead*/ rotationAmount) {
+        leftRotate.setTargetPosition(rotationAmount);
+        rightRotate.setTargetPosition(-rotationAmount);
+        leftRotate.setPower(0.4);
+        rightRotate.setPower(0.4);
+    }
+
+    //Method to rotate Arms (May need to switch direction of rotation
+    public void extendArm(int /*maybe int instead*/ extensionAmount) {
+        leftExtend.setTargetPosition(extensionAmount);
+        rightExtend.setTargetPosition(-extensionAmount);
+        leftExtend.setPower(0.4);
+        rightExtend.setPower(0.4);
+    }
 
     //Method to select starting position using X, Y, A, B buttons on gamepad
     public void selectStartingPosition() {
