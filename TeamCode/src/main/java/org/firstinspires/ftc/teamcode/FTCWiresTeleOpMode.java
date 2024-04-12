@@ -25,7 +25,18 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
     DcMotor leftRotate;
     DcMotor rightRotate;
 
+    // these are coefficients for tuning the PID controllers for the arm extention and rotation
+    double integralSum = 0;
+    double Kp = 0;
+    double Ki = 0;
+    double Kd = 0;
+
+    public void PIDPower(double refrence, double position) {
+
+    }
+
     //Method to rotate Arms
+
     public void rotateArm(float rotationAmount) {
 //        leftRotate.setTargetPosition(rotationAmount);
 //        rightRotate.setTargetPosition(-rotationAmount);
@@ -39,8 +50,8 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
         leftRotate.setPower(rotationAmount);
         rightRotate.setPower(rotationAmount);
     }
-
     //Method to Extend Arms
+
     public void extendArm(float extensionAmount) {
 //        leftExtend.setTargetPosition(extensionAmount);
 //        rightExtend.setTargetPosition(-extensionAmount);
@@ -108,8 +119,6 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
                 double slowMode = gamepad1.left_trigger;
                 double slowCoeff = 0.3;
 
-                gam
-
 
                 telemetry.addData("Running FTC Wires (ftcwires.org) TeleOp Mode adopted for Team:","TEAM NUMBER");
 
@@ -137,11 +146,11 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
                     wristServo.setPosition(wristServo.getPosition() - 0.02);
                 }
 
-                if (gamepad2.left_bumper) {
+                if (gamepad2.right_bumper) { // swapped as per Max's suggestion
                     leftGrab = !leftGrab;
                 }
 
-                if (gamepad2.right_bumper) {
+                if (gamepad2.left_bumper) {
                     rightGrab = !rightGrab;
                 }
 
@@ -157,8 +166,8 @@ public class FTCWiresTeleOpMode extends LinearOpMode {
                     rightFingerServo.setPosition(1);
                 }
 
-                if (gamepad1.left_bumper && gamepad1.right_bumper) {
-                    plane = true
+                if (gamepad1.left_bumper && gamepad1.right_bumper) { // plane lanuch code, this should work like the first time we programmed the claw fingers so the bumpers must be held to fully launch the drone
+                    plane = true;
                 }
 
                 extendArm(gamepad2.left_stick_x);
